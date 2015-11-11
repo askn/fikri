@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Todo do
+describe Fikri do
   # TODO: Write tests
 
   it "works" do

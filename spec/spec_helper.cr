@@ -1,2 +1,2 @@
 require "spec"
-require "../src/todo"
+require "../src/fikri"

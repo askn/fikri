@@ -1,3 +1,3 @@
-module Todo
+module Fikri
   VERSION = "0.1.0"
 end
