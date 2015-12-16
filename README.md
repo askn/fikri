@@ -1,5 +1,8 @@
 # Fikri
 
+<img src="https://dl.dropbox.com/s/dhw036evma45bb2/fikri.png" width="100" height="100" />
+
+
 > Fikri is a TODO list manager.
 
 
