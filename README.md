@@ -7,6 +7,14 @@
 
 
 ## Installation
+### From Source
+
+```
+git clone https://github.com/askn/fikri.git && cd fikri
+crystal build src/fikri.cr --release
+```
+
+### OS X
 
 ```bash
 brew tap askn/fikri
