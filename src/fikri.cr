@@ -21,7 +21,7 @@ module Fikri
       parser.on("init", "initialize") { Task.init }
     end
 
-    if old_argv[0] == "init"
+    if old_argv[0]? && old_argv[0] == "init"
       Task.init
     else
       if old_argv.size > 0
