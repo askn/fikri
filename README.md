@@ -1,22 +1,57 @@
-# fikri
+# Fikri
 
-TODO: Write a description here
+> Fikri is a TODO list manager.
+
 
 ## Installation
 
-
-TODO: Write installation instructions here
-
+```bash
+brew tap askn/fikri
+brew install fikri
+```
 
 ## Usage
 
+Fikri has a very simple interface to manage your project.
 
+### Add TODO list to your project.
 
-TODO: Write usage instructions here
+Fikri creates a TODO file and manage your tasks, share with your code collaborators.
 
-## Development
+```
+fikri init
+```
 
-TODO: Write development instructions here
+will initialize a `.todos.yml` file into your project.
+
+### Adding a task
+
+To add a task, you need to pass `-a` parameter.
+
+```
+fikri -a "Buy some eggs."
+```
+
+### Toggling a task
+
+You can switch a task to undone or done.
+
+```
+fikri -t 1
+```
+
+### Listin all tasks
+
+To see the status of the tasks, use `-l` option.
+
+```
+fikri -l
+```
+
+## Roadmap
+
+  - [ ] Add `TODO: .*` search feature in tasks.
+  - [ ] Add GitHub issue sync feature.
 
 ## Contributing
 
