@@ -3,9 +3,34 @@ require "colorize"
 
 class Task
   YAML.mapping({
-    task:   String,
+    name:   String,
     active: Bool,
   })
+
+  def initialize(@name : String = "No name", @active : Bool = false)
+  end
+
+  def self.all
+    doc = File.read(TASKS_FILE)
+    if doc.empty?
+      [] of Task
+    else
+      Array(Task).from_yaml(doc)
+    end
+  end
+
+  def save
+    puts MESSAGES["add"]
+    File.open(TASKS_FILE, "a") do |f|
+      f << "\n- name: #{@name}\n  active: #{@active}\n"
+    end
+    puts self.to_s
+  end
+
+  def to_s : String
+    state = @active ? "✓".colorize(:green) : "✕".colorize(:red)
+    return "%s | %s" % [state, @name]
+  end
 
   def self.init
     if File.file? TASKS_FILE
@@ -20,11 +45,6 @@ class Task
   end
 
   def self.add(task)
-    puts MESSAGES["add"]
-    File.open(TASKS_FILE, "a") do |f|
-      f << "- task: #{task}\n  active: false\n"
-    end
-    puts "\n\t#{state(false)} #{task}\n\n"
   end
 
   def self.delete(id)
