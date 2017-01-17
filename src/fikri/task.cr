@@ -10,21 +10,41 @@ class Task
   def initialize(@name : String = "No name", @active : Bool = false)
   end
 
-  def self.all
-    doc = File.read(TASKS_FILE)
-    if doc.empty?
-      [] of Task
-    else
-      Array(Task).from_yaml(doc)
+  def initialize(name : YAML::Any, active : YAML::Any)
+    @name = name.as_s
+    @active = active.as_s == "true" ? true : false
+  end
+
+  def self.all(&block)
+    tasks = [] of Task
+    File.open(TASKS_FILE, "r") do |file|
+      tasks_data = YAML.parse file
+      tasks_data.each { |task_data|
+        yield Task.new task_data["name"], task_data["active"]
+      }
+      return tasks
     end
   end
 
+  def self.get(name : String) : Task | Nil
+    Task.all { |task|
+      return task if task.name == name
+    }
+    return nil
+  end
+
   def save
-    puts MESSAGES["add"]
-    File.open(TASKS_FILE, "a") do |f|
-      f << "\n- name: #{@name}\n  active: #{@active}\n"
+    # if task already exist, we update it
+    # else we create the task
+    if Task.get @name
+      # update the task
+    else
+      puts MESSAGES["add"]
+      File.open(TASKS_FILE, "a") do |f|
+        f << "\n- name: #{@name}\n  active: #{@active}\n"
+      end
+      puts self.to_s
     end
-    puts self.to_s
   end
 
   def to_s : String
