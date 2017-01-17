@@ -29,7 +29,7 @@ class Task
 
   def self.delete(id)
     puts MESSAGES["delete"]
-    tasks = tasks
+    tasks = get_tasks
     t = tasks[id]
     tasks.delete tasks[id]
     puts "\n\t#{state(t.active)} #{t.task}\n\n"
@@ -37,7 +37,7 @@ class Task
   end
 
   def self.toggle(id)
-    tasks = tasks
+    tasks = get_tasks
     if tasks[id]?
       if tasks[id].active
         tasks[id].active = false
@@ -55,6 +55,7 @@ class Task
   end
 
   def self.list
+    tasks = get_tasks
     if tasks.size > 0
       puts MESSAGES["things"]
       tasks.each_with_index do |t, i|
@@ -66,7 +67,7 @@ class Task
     puts ""
   end
 
-  private def self.tasks
+  private def self.get_tasks
     doc = File.read(TASKS_FILE)
     if doc.empty?
       [] of Task
