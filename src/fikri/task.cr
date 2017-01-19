@@ -20,19 +20,16 @@ class Task
   end
 
   def self.all(&block)
-    tasks = [] of Task
     File.open(TASKS_FILE, "r") do |file|
-      tasks_data = YAML.parse file
-      tasks_data.each { |task_data|
+      YAML.parse(file).each { |task_data|
         yield Task.new task_data["name"], task_data["active"]
       }
-      return tasks
     end
   end
 
   def self.get(name : String) : Task | Nil
     Task.all { |task|
-      return task if task.name == name
+      return task if (task.name == name)
     }
     return nil
   end
