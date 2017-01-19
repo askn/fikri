@@ -8,4 +8,10 @@ describe Fikri do
     task.active.should eq(false)
     task.should be_a(Task)
   end
+
+  it "should save a new Task" do
+    task = Task.new "Test"
+    File.file?(TASKS_FILE).should eq(true)
+    task.save.should eq(true)
+  end
 end

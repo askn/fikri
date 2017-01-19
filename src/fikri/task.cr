@@ -7,6 +7,10 @@ class Task
     active: Bool,
   })
 
+  def self.create_database
+    File.new(TASKS_FILE, "a") unless File.file?(TASKS_FILE)
+  end
+
   def initialize(@name : String = "No name", @active : Bool = false)
   end
 
@@ -34,17 +38,27 @@ class Task
   end
 
   def save
+    Task.create_database
     # if task already exist, we update it
     # else we create the task
-    if Task.get @name
-      # update the task
+    if false # Task.get @name
+      self.update
     else
-      puts MESSAGES["add"]
-      File.open(TASKS_FILE, "a") do |f|
-        f << "\n- name: #{@name}\n  active: #{@active}\n"
-      end
-      puts self.to_s
+      self.insert
     end
+  end
+
+  def insert
+    File.open(TASKS_FILE, "a") do |f|
+      f << "\n- name: #{@name}\n  active: #{@active}\n"
+      puts MESSAGES["add"]
+      puts self.to_s
+      return true
+    end
+    return false
+  end
+
+  def update
   end
 
   def to_s : String
