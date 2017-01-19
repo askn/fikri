@@ -72,7 +72,7 @@ class Task
     tasks = get_tasks
     t = tasks[id]
     tasks.delete tasks[id]
-    puts "\n\t#{state(t.active)} #{t.task}\n\n"
+    puts "\n\t#{state(t.active)} #{t.name}\n\n"
     write_tasks(tasks)
   end
 
@@ -88,7 +88,7 @@ class Task
       write_tasks(tasks)
 
       t = tasks[id]
-      puts "\n\t#{id} | #{state(t.active)} #{t.task}\n\n"
+      puts "\n\t#{id} | #{state(t.active)} #{t.name}\n\n"
     else
       puts MESSAGES["dont_know"]
     end
@@ -99,7 +99,7 @@ class Task
     if tasks.size > 0
       puts MESSAGES["things"]
       tasks.each_with_index do |t, i|
-        puts "\t#{i} | #{state(t.active)} #{t.task}"
+        puts "\t#{i} | #{state(t.active)} #{t.name}"
       end
     else
       puts MESSAGES["wait"]
@@ -119,7 +119,7 @@ class Task
   private def self.write_tasks(tasks)
     File.open(TASKS_FILE, "w") do |f|
       tasks.each do |t|
-        f << "- task: #{t.task}\n  active: #{t.active}\n"
+        f << "- task: #{t.name}\n  active: #{t.active}\n"
       end
     end
   end
