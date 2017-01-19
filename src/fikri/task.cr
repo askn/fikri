@@ -21,10 +21,19 @@ class Task
 
   def self.all(&block)
     File.open(TASKS_FILE, "r") do |file|
-      YAML.parse(file).each { |task_data|
-        yield Task.new task_data["name"], task_data["active"]
-      }
+      data = YAML.parse(file)
+      if data != nil
+        data.each { |task_data|
+          yield Task.new task_data["name"], task_data["active"]
+        }
+      end
     end
+  end
+
+  def self.count : Int32
+    count = Int32.new 0
+    Task.all { count += 1 }
+    return count
   end
 
   def self.get(name : String) : Task | Nil
@@ -38,7 +47,7 @@ class Task
     Task.create_database
     # if task already exist, we update it
     # else we create the task
-    if false # Task.get @name
+    if Task.get @name
       self.update
     else
       self.insert
@@ -106,16 +115,7 @@ class Task
   end
 
   def self.list
-    tasks = get_tasks
-    if tasks.size > 0
-      puts MESSAGES["things"]
-      tasks.each_with_index do |t, i|
-        puts "\t#{i} | #{state(t.active)} #{t.name}"
-      end
-    else
-      puts MESSAGES["wait"]
-    end
-    puts ""
+    Task.all { |task| puts task.to_s }
   end
 
   private def self.get_tasks
@@ -129,9 +129,9 @@ class Task
 
   private def self.write_tasks(tasks)
     File.open(TASKS_FILE, "w") do |f|
-      tasks.each do |t|
+      Task.all { |t|
         f << "- task: #{t.name}\n  active: #{t.active}\n"
-      end
+      }
     end
   end
 
