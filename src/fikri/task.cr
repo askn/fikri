@@ -57,14 +57,25 @@ class Task
   def insert
     File.open(TASKS_FILE, "a") do |f|
       f << "\n- name: #{@name}\n  active: #{@active}\n"
-      puts MESSAGES["add"]
-      puts self.to_s
       return true
     end
     return false
   end
 
   def update
+    # Open file and construct a new array
+    new_data = YAML.parse(File.read(TASKS_FILE)).map do |any_task|
+      if any_task["name"] == @name
+        {"name" => @name, "active" => @active}
+      else
+        any_task
+      end
+    end
+
+    # writte the file with the new array produced
+    File.open(TASKS_FILE, "w") do |file|
+      YAML.dump(new_data, file)
+    end
   end
 
   def to_s : String
@@ -79,9 +90,7 @@ class Task
     else
       msg = "Initialized #{TASKS_FILE}"
     end
-
     File.new TASKS_FILE, "w"
-    puts msg
   end
 
   def self.add(task)

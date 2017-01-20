@@ -35,9 +35,18 @@ describe Fikri do
   end
 
   it "should update a task already saved" do
-    Task.new("Task not done").save
-    t = Task.get("Task not done").as(Task)
-    t.active = true
-    Task.get("Task not done").as(Task).active.should eq(true)
+    # create tasks and save it
+    Task.new("Task done").save
+    # Get the same task from database and toggle it
+    task_toggled = Task.get("Task done").as(Task)
+    task_toggled.active = true
+    task_toggled.save
+    # Get it again from database and check if task has been save
+    # with new status
+    if task = Task.get("Task done")
+      task.as(Task).active.should eq(true)
+    else
+      raise Exception.new("Task not found")
+    end
   end
 end
