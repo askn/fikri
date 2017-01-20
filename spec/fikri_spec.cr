@@ -63,4 +63,11 @@ describe Fikri do
       raise Exception.new("Task not found")
     end
   end
+
+  it "should delete a task" do
+    Task.new("Test to delete").save
+    old_count = Task.count
+    Task.get("Test to delete").as(Task).delete
+    Task.count.should eq(old_count - 1)
+  end
 end

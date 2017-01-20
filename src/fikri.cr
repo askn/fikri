@@ -17,8 +17,12 @@ module Fikri
           puts "Task was not found"
         end
       end
-      parser.on("-d id", "--delete=id", "delete task") do |id|
-        Task.delete(id.to_i)
+      parser.on("-d name", "--delete=name", "delete task") do |name|
+        if task = Task.get(name)
+          task.as(Task).delete
+        else
+          puts "Task was not found"
+        end
       end
       parser.on("-l", "--list", "list all tasks") { Task.list }
       parser.on("-h", "--help", "Show this help") { puts parser }

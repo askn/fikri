@@ -72,10 +72,7 @@ class Task
       end
     end
 
-    # writte the file with the new array produced
-    File.open(TASKS_FILE, "w") do |file|
-      YAML.dump(new_data, file)
-    end
+    File.open(TASKS_FILE, "w") { |file| YAML.dump(new_data, file) }
   end
 
   def to_s : String
@@ -96,16 +93,14 @@ class Task
   def self.add(task)
   end
 
-  def self.delete(id)
-    puts MESSAGES["delete"]
-    tasks = get_tasks
-    t = tasks[id]
-    tasks.delete tasks[id]
-    puts "\n\t#{state(t.active)} #{t.name}\n\n"
-    write_tasks(tasks)
+  def delete
+    # Open file and construct a new array
+    new_data = YAML.parse(File.read(TASKS_FILE)).reject { |any_task| any_task["name"] == @name }
+    # writte the file with the new array produced
+    File.open(TASKS_FILE, "w") { |file| YAML.dump(new_data, file) }
   end
 
-  # Change the status and save 
+  # Change the status and save
   def toggle
     @active = !@active
     self.save
