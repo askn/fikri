@@ -49,4 +49,18 @@ describe Fikri do
       raise Exception.new("Task not found")
     end
   end
+
+  it "should toggle a task" do
+    # create tasks and save it
+    Task.new("Task done").save
+    # Get the same task from database and toggle it
+    Task.get("Task done").as(Task).toggle
+    # Get it again from database and check if task has been save
+    # with new status
+    if task = Task.get("Task done")
+      task.as(Task).active.should eq(true)
+    else
+      raise Exception.new("Task not found")
+    end
+  end
 end

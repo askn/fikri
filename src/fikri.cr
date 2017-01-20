@@ -10,8 +10,12 @@ module Fikri
       parser.on("-a \"task\"", "--add=\"task\"", "add a new task") do |task|
         Task.add(task)
       end
-      parser.on("-t id", "--toggle=id", "change status") do |id|
-        Task.toggle(id.to_i)
+      parser.on("-t name", "--toggle=name", "change status") do |name|
+        if task = Task.get(name)
+          task.as(Task).toggle
+        else
+          puts "Task was not found"
+        end
       end
       parser.on("-d id", "--delete=id", "delete task") do |id|
         Task.delete(id.to_i)

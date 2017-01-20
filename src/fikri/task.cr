@@ -105,22 +105,10 @@ class Task
     write_tasks(tasks)
   end
 
-  def self.toggle(id)
-    tasks = get_tasks
-    if tasks[id]?
-      if tasks[id].active
-        tasks[id].active = false
-      else
-        tasks[id].active = true
-        puts MESSAGES["complete"]
-      end
-      write_tasks(tasks)
-
-      t = tasks[id]
-      puts "\n\t#{id} | #{state(t.active)} #{t.name}\n\n"
-    else
-      puts MESSAGES["dont_know"]
-    end
+  # Change the status and save 
+  def toggle
+    @active = !@active
+    self.save
   end
 
   def self.list
