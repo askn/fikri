@@ -90,9 +90,6 @@ class Task
     File.new TASKS_FILE, "w"
   end
 
-  def self.add(task)
-  end
-
   def delete
     # Open file and construct a new array
     new_data = YAML.parse(File.read(TASKS_FILE)).reject { |any_task| any_task["name"] == @name }
@@ -104,10 +101,6 @@ class Task
   def toggle
     @active = !@active
     self.save
-  end
-
-  def self.list
-    Task.all { |task| puts task.to_s }
   end
 
   private def self.get_tasks
