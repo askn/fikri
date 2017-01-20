@@ -43,7 +43,7 @@ class Task
     return nil
   end
 
-  def save
+  def save : Bool
     Task.create_database
     # if task already exist, we update it
     # else we create the task
@@ -54,7 +54,7 @@ class Task
     end
   end
 
-  def insert
+  def insert : Bool
     File.open(TASKS_FILE, "a") do |f|
       f << "\n- name: #{@name}\n  active: #{@active}\n"
       return true
@@ -62,7 +62,7 @@ class Task
     return false
   end
 
-  def update
+  def update : Bool
     # Open file and construct a new array
     new_data = YAML.parse(File.read(TASKS_FILE)).map do |any_task|
       if any_task["name"] == @name
@@ -72,7 +72,11 @@ class Task
       end
     end
 
-    File.open(TASKS_FILE, "w") { |file| YAML.dump(new_data, file) }
+    File.open(TASKS_FILE, "w") do |file|
+      YAML.dump(new_data, file)
+      return true
+    end
+    return false
   end
 
   def to_s : String
@@ -90,15 +94,19 @@ class Task
     File.new TASKS_FILE, "w"
   end
 
-  def delete
+  def delete : Bool
     # Open file and construct a new array
     new_data = YAML.parse(File.read(TASKS_FILE)).reject { |any_task| any_task["name"] == @name }
     # writte the file with the new array produced
-    File.open(TASKS_FILE, "w") { |file| YAML.dump(new_data, file) }
+    File.open(TASKS_FILE, "w") do |file|
+      YAML.dump(new_data, file)
+      return true
+    end
+    return false
   end
 
   # Change the status and save
-  def toggle
+  def toggle : Bool
     @active = !@active
     self.save
   end
