@@ -2,8 +2,6 @@ require "./fikri/*"
 require "option_parser"
 
 module Fikri
-  old_argv = ARGV.dup
-
   at_exit do
     opts = OptionParser.new do |parser|
       parser.banner = "Usage: fikri [arguments]"
