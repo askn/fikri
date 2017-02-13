@@ -70,4 +70,10 @@ describe Fikri do
     Task.get("Test to delete").as(Task).delete.should eq(true)
     Task.count.should eq(old_count - 1)
   end
+
+  it "should find if a tasks exist or not" do
+    Task.exists?("Test").should eq(false)
+    Task.new("Test").save
+    Task.exists?("Test").should eq(true)
+  end
 end

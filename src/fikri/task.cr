@@ -19,35 +19,51 @@ class Task
     @active = active.as_s == "true" ? true : false
   end
 
-  def self.all(&block)
-    File.open(TASKS_FILE, "r") do |file|
-      data = YAML.parse(file)
-      if data != nil
-        data.each { |task_data|
-          yield Task.new task_data["name"], task_data["active"]
-        }
+  def self.all : Array(Task)
+    Task.create_database
+    tasks = [] of Task
+    data = YAML.parse(File.read(TASKS_FILE))
+    if data.raw
+      data.each do |any_task|
+        if any_task["name"]? && any_task["active"]?
+          tasks.push Task.new(any_task["name"], any_task["active"])
+        end
       end
     end
+    return tasks
   end
 
   def self.count : Int32
     count = Int32.new 0
-    Task.all { count += 1 }
+    tasks = Task.all
+    if tasks != Nil
+      tasks.each { count += 1 }
+    end
     return count
   end
 
-  def self.get(name : String) : Task | Nil
-    Task.all { |task|
+  def self.get(name : String) : Task
+    tasks = Task.all
+    Task.all.each { |task|
       return task if (task.name == name)
     }
-    return nil
+    raise Exception.new "Task not found"
+  end
+
+  def self.exists?(name : String) : Bool
+    begin
+      Task.get name
+      return true
+    rescue Exception
+      return false
+    end
   end
 
   def save : Bool
     Task.create_database
     # if task already exist, we update it
     # else we create the task
-    if Task.get @name
+    if Task.exists? @name
       self.update
     else
       self.insert
@@ -84,6 +100,10 @@ class Task
     return "%s | %s" % [state, @name]
   end
 
+  def to_h : Hash
+    return {"name" => @name, "active" => @active}
+  end
+
   def self.init
     if File.file? TASKS_FILE
       File.delete TASKS_FILE
@@ -109,23 +129,6 @@ class Task
   def toggle : Bool
     @active = !@active
     self.save
-  end
-
-  private def self.get_tasks
-    doc = File.read(TASKS_FILE)
-    if doc.empty?
-      [] of Task
-    else
-      Array(Task).from_yaml(doc)
-    end
-  end
-
-  private def self.write_tasks(tasks)
-    File.open(TASKS_FILE, "w") do |f|
-      Task.all { |t|
-        f << "- task: #{t.name}\n  active: #{t.active}\n"
-      }
-    end
   end
 
   private def self.state(state : Bool)

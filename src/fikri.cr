@@ -25,11 +25,12 @@ module Fikri
           task.as(Task).delete
           puts MESSAGES["delete"]
         else
+          puts task.class
           puts MESSAGES["404"]
         end
       end
       parser.on("-l", "--list", "list all tasks") {
-        Task.all { |task| puts task.to_s }
+        Task.all.each { |task| puts task.to_s }
       }
       parser.on("-h", "--help", "Show this help") { puts parser }
     end
