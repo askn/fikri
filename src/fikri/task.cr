@@ -3,9 +3,113 @@ require "colorize"
 
 class Task
   YAML.mapping({
-    task:   String,
+    id:     Int32,
+    name:   String,
     active: Bool,
   })
+
+  def self.create_database
+    File.new(TASKS_FILE, "a") unless File.file?(TASKS_FILE)
+  end
+
+  def initialize(@name : String = "No name", @active : Bool = false)
+    @id = 0
+  end
+
+  def initialize(data : YAML::Any)
+    @name = data["name"]? ? data["name"].as_s : "No name"
+    @active = data["active"]? && data["active"].as_s == "true" ? true : false
+    @id = data["id"]? ? data["id"].as_s.to_i32 : -1
+  end
+
+  def self.all : Array(Task)
+    Task.create_database
+    tasks = [] of Task
+    data = YAML.parse(File.read(TASKS_FILE))
+    if data.raw
+      data.each do |any_task|
+        tasks.push Task.new(any_task)
+      end
+    end
+    return tasks
+  end
+
+  def self.count : Int32
+    count = Int32.new 0
+    tasks = Task.all
+    if tasks != Nil
+      tasks.each { count += 1 }
+    end
+    return count
+  end
+
+  def self.get(id : Int32) : Task
+    Task.all.each { |task|
+      return task if (task.id == id)
+    }
+    raise Exception.new "Task not found"
+  end
+
+  def self.get(name : String) : Task
+    Task.all.each { |task|
+      return task if (task.name == name)
+    }
+    raise Exception.new "Task not found"
+  end
+
+  def self.exists?(name : String) : Bool
+    begin
+      Task.get name
+      return true
+    rescue Exception
+      return false
+    end
+  end
+
+  def save : Bool
+    Task.create_database
+    # if task already exist, we update it
+    # else we create the task
+    if Task.exists? @name
+      self.update
+    else
+      self.insert
+    end
+  end
+
+  def insert : Bool
+    tasks = [] of Task
+
+    Task.all.each do |task|
+      @id = task.id + 1
+      tasks << task
+    end
+    tasks << self
+    new_data = tasks.map { |task| task.to_h }
+    return write_data(new_data)
+  end
+
+  def update : Bool
+    # Open file and construct a new array
+    new_data = YAML.parse(File.read(TASKS_FILE)).map do |any_task|
+      if any_task["name"] == @name
+        {"name" => @name, "active" => @active}
+      else
+        any_task
+      end
+    end
+
+    return write_data(new_data)
+  end
+
+  def to_s : String
+    state = @active ? "✓".colorize(:green) : "✕".colorize(:red)
+    return "%s | %s %s" % [@id, state, @name]
+  end
+
+  def to_h : Hash
+    return {"id" => @id, "name" => @name, "active" => @active}
+  end
 
   def self.init
     if File.file? TASKS_FILE
@@ -14,76 +118,31 @@ class Task
     else
       msg = "Initialized #{TASKS_FILE}"
     end
-
     File.new TASKS_FILE, "w"
-    puts msg
   end
 
-  def self.add(task)
-    puts MESSAGES["add"]
-    File.open(TASKS_FILE, "a") do |f|
-      f << "- task: #{task}\n  active: false\n"
-    end
-    puts "\n\t#{state(false)} #{task}\n\n"
+  def delete : Bool
+    # Open file and construct a new array
+    new_data = YAML.parse(File.read(TASKS_FILE)).reject { |any_task| any_task["name"] == @name }
+    return write_data(new_data)
   end
 
-  def self.delete(id)
-    puts MESSAGES["delete"]
-    tasks = tasks
-    t = tasks[id]
-    tasks.delete tasks[id]
-    puts "\n\t#{state(t.active)} #{t.task}\n\n"
-    write_tasks(tasks)
-  end
-
-  def self.toggle(id)
-    tasks = tasks
-    if tasks[id]?
-      if tasks[id].active
-        tasks[id].active = false
-      else
-        tasks[id].active = true
-        puts MESSAGES["complete"]
-      end
-      write_tasks(tasks)
-
-      t = tasks[id]
-      puts "\n\t#{id} | #{state(t.active)} #{t.task}\n\n"
-    else
-      puts MESSAGES["dont_know"]
-    end
-  end
-
-  def self.list
-    if tasks.size > 0
-      puts MESSAGES["things"]
-      tasks.each_with_index do |t, i|
-        puts "\t#{i} | #{state(t.active)} #{t.task}"
-      end
-    else
-      puts MESSAGES["wait"]
-    end
-    puts ""
-  end
-
-  private def self.tasks
-    doc = File.read(TASKS_FILE)
-    if doc.empty?
-      [] of Task
-    else
-      Array(Task).from_yaml(doc)
-    end
-  end
-
-  private def self.write_tasks(tasks)
-    File.open(TASKS_FILE, "w") do |f|
-      tasks.each do |t|
-        f << "- task: #{t.task}\n  active: #{t.active}\n"
-      end
-    end
+  # Change the status and save
+  def toggle : Bool
+    @active = !@active
+    self.save
   end
 
   private def self.state(state : Bool)
     state ? "✓".colorize(:green) : "✕".colorize(:red)
+  end
+
+  # write the given data into the yaml file
+  private def write_data(data) : Bool
+    File.open(TASKS_FILE, "w") do |file|
+      YAML.dump(data, file)
+      return true
+    end
+    return false
   end
 end

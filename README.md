@@ -25,16 +25,6 @@ brew install fikri
 
 Fikri has a very simple interface to manage your project.
 
-### Add TODO list to your project.
-
-Fikri creates a TODO file and manage your tasks, share with your code collaborators.
-
-```
-fikri init
-```
-
-will initialize a `.todos.yml` file into your project.
-
 ### Adding a task
 
 To add a task, you need to pass `-a` parameter.
@@ -42,6 +32,8 @@ To add a task, you need to pass `-a` parameter.
 ```
 fikri -a "Buy some eggs."
 ```
+
+Fikri creates a TODO file and add your task.
 
 ### Toggling a task
 
