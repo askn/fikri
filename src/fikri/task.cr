@@ -43,8 +43,14 @@ class Task
     return count
   end
 
+  def self.get(id : Int32) : Task
+    Task.all.each { |task|
+      return task if (task.id == id)
+    }
+    raise Exception.new "Task not found"
+  end
+
   def self.get(name : String) : Task
-    tasks = Task.all
     Task.all.each { |task|
       return task if (task.name == name)
     }
@@ -98,7 +104,7 @@ class Task
 
   def to_s : String
     state = @active ? "✓".colorize(:green) : "✕".colorize(:red)
-    return "%s | %s" % [state, @name]
+    return "%s | %s %s" % [@id, state, @name]
   end
 
   def to_h : Hash

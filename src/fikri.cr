@@ -10,16 +10,16 @@ module Fikri
         task.save
         puts MESSAGES["add"]
       end
-      parser.on("-t name", "--toggle=name", "change status") do |name|
-        if task = Task.get(name)
+      parser.on("-t id", "--toggle=id", "change status") do |id|
+        if task = Task.get(id.to_i32)
           task.as(Task).toggle
           puts MESSAGES["complete"]
         else
           puts MESSAGES["404"]
         end
       end
-      parser.on("-d name", "--delete=name", "delete task") do |name|
-        if task = Task.get(name)
+      parser.on("-d id", "--delete=id", "delete task") do |id|
+        if task = Task.get(id.to_i32)
           task.as(Task).delete
           puts MESSAGES["delete"]
         else
