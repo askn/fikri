@@ -3,6 +3,7 @@ require "colorize"
 
 class Task
   YAML.mapping({
+    id:     Int32,
     name:   String,
     active: Bool,
   })
@@ -12,11 +13,13 @@ class Task
   end
 
   def initialize(@name : String = "No name", @active : Bool = false)
+    @id = 0
   end
 
-  def initialize(name : YAML::Any, active : YAML::Any)
-    @name = name.as_s
-    @active = active.as_s == "true" ? true : false
+  def initialize(data : YAML::Any)
+    @name = data["name"]? ? data["name"].as_s : "No name"
+    @active = data["active"]? && data["active"].as_s == "true" ? true : false
+    @id = data["id"]? ? data["id"].as_s.to_i32 : -1
   end
 
   def self.all : Array(Task)
@@ -25,9 +28,7 @@ class Task
     data = YAML.parse(File.read(TASKS_FILE))
     if data.raw
       data.each do |any_task|
-        if any_task["name"]? && any_task["active"]?
-          tasks.push Task.new(any_task["name"], any_task["active"])
-        end
+        tasks.push Task.new(any_task)
       end
     end
     return tasks
@@ -71,11 +72,15 @@ class Task
   end
 
   def insert : Bool
-    File.open(TASKS_FILE, "a") do |f|
-      f << "\n- name: #{@name}\n  active: #{@active}\n"
-      return true
+    tasks = [] of Task
+
+    Task.all.each do |task|
+      @id = task.id + 1
+      tasks << task
     end
-    return false
+    tasks << self
+    new_data = tasks.map { |task| task.to_h }
+    return write_data(new_data)
   end
 
   def update : Bool
@@ -88,11 +93,7 @@ class Task
       end
     end
 
-    File.open(TASKS_FILE, "w") do |file|
-      YAML.dump(new_data, file)
-      return true
-    end
-    return false
+    return write_data(new_data)
   end
 
   def to_s : String
@@ -101,7 +102,7 @@ class Task
   end
 
   def to_h : Hash
-    return {"name" => @name, "active" => @active}
+    return {"id" => @id, "name" => @name, "active" => @active}
   end
 
   def self.init
@@ -117,12 +118,7 @@ class Task
   def delete : Bool
     # Open file and construct a new array
     new_data = YAML.parse(File.read(TASKS_FILE)).reject { |any_task| any_task["name"] == @name }
-    # writte the file with the new array produced
-    File.open(TASKS_FILE, "w") do |file|
-      YAML.dump(new_data, file)
-      return true
-    end
-    return false
+    return write_data(new_data)
   end
 
   # Change the status and save
@@ -133,5 +129,14 @@ class Task
 
   private def self.state(state : Bool)
     state ? "✓".colorize(:green) : "✕".colorize(:red)
+  end
+
+  # write the given data into the yaml file
+  private def write_data(data) : Bool
+    File.open(TASKS_FILE, "w") do |file|
+      YAML.dump(data, file)
+      return true
+    end
+    return false
   end
 end

@@ -14,6 +14,7 @@ describe Fikri do
   it "should save a new Task" do
     task = Task.new "Saved test"
     task.save.should eq(true)
+    task.id.should eq(0)
     File.file?(TASKS_FILE).should eq(true)
   end
 
@@ -75,5 +76,13 @@ describe Fikri do
     Task.exists?("Test").should eq(false)
     Task.new("Test").save
     Task.exists?("Test").should eq(true)
+  end
+
+  it "should increment Task id" do
+    (0..10).each do |i|
+      task = Task.new "task #{i}"
+      task.save
+      task.id.should eq(i)
+    end
   end
 end
